@@ -35,7 +35,6 @@
                             <th>Merk</th>
                             <th>Harga Beli</th>
                             <th>Harga Jual</th>
-                            <th>Diskon</th>
                             <th>Stok</th>
                             <th width="15%"><i class="fa fa-cog"></i></th>
                         </thead>
@@ -70,8 +69,7 @@
                 {data: 'nama_kategori'},
                 {data: 'merk'},
                 {data: 'harga_beli'},
-                {data: 'harga_jual_produk'},
-                {data: 'diskon'},
+                {data: 'harga_jual'},
                 {data: 'stok'},
                 {data: 'aksi', searchable: false, sortable: false},
             ]
@@ -84,10 +82,10 @@
                             $('#modal-form').modal('hide');
                             table.ajax.reload();
                         })
-                        // .fail((errors) => {
-                        //     alert('Tidak dapat menyimpan data');
-                        //     return;
-                        // });
+                        .fail((errors) => {
+                            alert('Tidak dapat menyimpan data');
+                            return;
+                        });
                 }
             });
 

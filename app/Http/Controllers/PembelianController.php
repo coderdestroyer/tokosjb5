@@ -30,6 +30,9 @@ class PembelianController extends Controller
             ->addColumn('supplier', function ($pembelian) {
                 return $pembelian->supplier->nama;
             })
+            ->addColumn('status', function ($pembelian) {
+                return $pembelian->status;
+            })
             ->addColumn('aksi', function ($pembelian) {
                 return '
                 <div class="btn-group">
