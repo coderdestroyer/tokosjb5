@@ -17,4 +17,9 @@ class PenjualanDetail extends Model
     {
         return $this->hasOne(Produk::class, 'id_produk', 'id_produk');
     }
+
+    public function penjualan()
+    {
+        return $this->hasOne(Penjualan::class, 'nomor_invoice', 'nomor_invoice');
+    }
 }

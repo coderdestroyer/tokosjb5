@@ -14,7 +14,6 @@ class HapusKolomTwoFactorDanCurrentTeamIdFromUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            // Hapus kolom jika ada di tabel
             $table->dropColumn('two_factor_secret');
             $table->dropColumn('two_factor_recovery_codes');
             $table->dropColumn('current_team_id');
@@ -29,7 +28,6 @@ class HapusKolomTwoFactorDanCurrentTeamIdFromUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            // Hapus kolom jika ada di tabel
             $table->dropColumn('two_factor_secret');
             $table->dropColumn('two_factor_recovery_codes');
             $table->dropColumn('current_team_id');

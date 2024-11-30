@@ -14,9 +14,9 @@ class ProdukTableSeeder extends Seeder
      */
     public function run()
     {
+
         DB::table('produk')->insert([
             [
-                'kode_produk' => 'P000001',
                 'nama_produk' => 'Produk A',
                 'harga_jual' => 50000,
                 'id_kategori' => 1, // Sesuaikan dengan ID kategori yang ada
@@ -24,7 +24,6 @@ class ProdukTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'kode_produk' => 'P000002',
                 'nama_produk' => 'Produk B',
                 'harga_jual' => 75000,
                 'id_kategori' => 2,

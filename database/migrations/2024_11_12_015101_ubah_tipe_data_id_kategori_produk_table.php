@@ -14,7 +14,7 @@ class UbahTipeDataIdKategoriProdukTable extends Migration
     public function up()
     {
         Schema::table('produk', function (Blueprint $table) {
-            $table->unsignedInteger('id_kategori')->nullable(false)->change();  // Mengubah kolom menjadi NOT NULL
+            $table->unsignedInteger('id_kategori')->nullable(false)->change();
         });
     }
 
@@ -26,7 +26,7 @@ class UbahTipeDataIdKategoriProdukTable extends Migration
     public function down()
     {
         Schema::table('produk', function (Blueprint $table) {
-            $table->unsignedInteger('id_kategori')->nullable()->change();  // Kembalikan kolom menjadi nullable
+            $table->unsignedInteger('id_kategori')->nullable()->change();
         });
     }
 }

@@ -19,12 +19,12 @@
                         @foreach ($produk as $key => $item)
                             <tr>
                                 <td width="5%">{{ $key+1 }}</td>
-                                <td><span class="label label-success">{{ $item->kode_produk }}</span></td>
+                                <td><span class="label label-success">PRD00{{ $item->kode_produk }}</span></td>
                                 <td>{{ $item->nama_produk }}</td>
-                                <td>{{ $item->harga_beli }}</td>
+                                <td>{{ 'Rp ' . format_uang($item->detailProduk->harga_beli_produk) }}</td>
                                 <td>
                                     <a href="#" class="btn btn-primary btn-xs btn-flat"
-                                        onclick="pilihProduk('{{ $item->id_produk }}', '{{ $item->kode_produk }}')">
+                                        onclick="pilihProduk('{{ $item->kode_produk }}')">
                                         <i class="fa fa-check-circle"></i>
                                         Pilih
                                     </a>

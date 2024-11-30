@@ -14,7 +14,7 @@ class TambahKolomHargaJualProdukTable extends Migration
     public function up()
     {
         Schema::table('produk', function (Blueprint $table) {
-            $table->integer('harga_jual')->after('nama_produk'); // Menggunakan tipe data integer
+            $table->integer('harga_jual')->after('nama_produk');
         });
     }
 

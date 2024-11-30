@@ -14,10 +14,8 @@ class MengubahPembelianTabel extends Migration
     public function up()
     {
         Schema::table('pembelian', function (Blueprint $table) {
-            // Menambah kolom tanggal_pembelian
             $table->date('tanggal_pembelian')->after('id_pembelian');
 
-            // Menghapus kolom yang tidak diperlukan
             $table->dropColumn([
                 'total_item',
                 'total_harga',
@@ -35,13 +33,11 @@ class MengubahPembelianTabel extends Migration
     public function down()
     {
         Schema::table('pembelian', function (Blueprint $table) {
-            // Menambahkan kolom yang dihapus jika rollback dilakukan
             $table->integer('total_item');
             $table->integer('total_harga');
             $table->tinyInteger('diskon')->default(0);
             $table->integer('bayar')->default(0);
 
-            // Menghapus kolom tanggal_pembelian
             $table->dropColumn('tanggal_pembelian');
         });
     }

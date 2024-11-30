@@ -78,7 +78,6 @@
                 <table class="table table-stiped table-bordered table-pembelian">
                     <thead>
                         <th width="5%">No</th>
-                        <th>Kode</th>
                         <th>Nama</th>
                         <th>Harga</th>
                         <th width="15%">Jumlah</th>
@@ -104,12 +103,6 @@
                                 <label for="totalrp" class="col-lg-2 control-label">Total</label>
                                 <div class="col-lg-8">
                                     <input type="text" id="totalrp" class="form-control" readonly>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="diskon" class="col-lg-2 control-label">Diskon</label>
-                                <div class="col-lg-8">
-                                    <input type="number" name="diskon" id="diskon" class="form-control" value="{{ $diskon }}">
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -150,7 +143,6 @@
             },
             columns: [
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
-                {data: 'kode_produk'},
                 {data: 'nama_produk'},
                 {data: 'harga_beli'},
                 {data: 'jumlah'},
@@ -162,8 +154,9 @@
             paginate: false
         })
         .on('draw.dt', function () {
-            loadForm($('#diskon').val());
+            loadForm();
         });
+        
         table2 = $('.table-produk').DataTable();
 
         $(document).on('input', '.quantity', function () {
@@ -188,7 +181,7 @@
                 })
                 .done(response => {
                     $(this).on('mouseout', function () {
-                        table.ajax.reload(() => loadForm($('#diskon').val()));
+                        table.ajax.reload(() => loadForm());
                     });
                 })
                 .fail(errors => {
@@ -218,24 +211,31 @@
         $('#modal-produk').modal('hide');
     }
 
-    function pilihProduk(id, kode) {
-        $('#id_produk').val(id);
+    function pilihProduk(kode) {
         $('#kode_produk').val(kode);
         hideProduk();
         tambahProduk();
     }
 
     function tambahProduk() {
-        $.post('{{ route('pembelian_detail.store') }}', $('.form-produk').serialize())
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.post('{{ route('pembelian_detail.selectproduk') }}', $('.form-produk').serialize())
             .done(response => {
                 $('#kode_produk').focus();
-                table.ajax.reload(() => loadForm($('#diskon').val()));
+                table.ajax.reload(() => loadForm());
+                console.log(response);
             })
             .fail(errors => {
-                alert('Tidak dapat menyimpan data');
+                alert('Data Tidak Ditemukan');
                 return;
             });
-    }
+
+        }
+
 
     function deleteData(url) {
         if (confirm('Yakin ingin menghapus data terpilih?')) {
@@ -244,7 +244,7 @@
                     '_method': 'delete'
                 })
                 .done((response) => {
-                    table.ajax.reload(() => loadForm($('#diskon').val()));
+                    table.ajax.reload(() => loadForm());
                 })
                 .fail((errors) => {
                     alert('Tidak dapat menghapus data');
@@ -253,11 +253,11 @@
         }
     }
 
-    function loadForm(diskon = 0) {
+    function loadForm() {
         $('#total').val($('.total').text());
         $('#total_item').val($('.total_item').text());
 
-        $.get(`{{ url('/pembelian_detail/loadform') }}/${diskon}/${$('.total').text()}`)
+        $.get(`{{ url('/pembelian_detail/loadform') }}/${$('.total').text()}`)
             .done(response => {
                 $('#totalrp').val('Rp. '+ response.totalrp);
                 $('#bayarrp').val('Rp. '+ response.bayarrp);
@@ -266,9 +266,9 @@
                 $('.tampil-terbilang').text(response.terbilang);
             })
             .fail(errors => {
-                alert('Tidak dapat menampilkan data');
-                return;
-            })
+                alert('Tidak dapat menampilkan data. Status: ' + errors.status + ', Pesan: ' + errors.statusText);
+                console.error('Detail Error:', errors);
+            });
     }
 </script>
 @endpush

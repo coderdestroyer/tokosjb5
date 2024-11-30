@@ -14,7 +14,7 @@ class TambahIdKategoriProdukTable extends Migration
     public function up()
     {
         Schema::table('produk', function (Blueprint $table) {
-            $table->unsignedInteger('id_kategori')->nullable()->after('harga_jual'); // Kolom sebagai int unsigned
+            $table->unsignedInteger('id_kategori')->nullable()->after('harga_jual');
             $table->foreign('id_kategori')->references('id_kategori')->on('kategori')->onDelete('set null');
         });
     }

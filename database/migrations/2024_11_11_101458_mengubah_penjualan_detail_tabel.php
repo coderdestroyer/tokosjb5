@@ -14,10 +14,8 @@ class MengubahPenjualanDetailTabel extends Migration
     public function up()
     {
         Schema::table('penjualan_detail', function (Blueprint $table) {
-            // Menghapus kolom yang tidak dibutuhkan
             $table->dropColumn(['diskon', 'subtotal']);
 
-            // Mengubah kolom harga_jual menjadi harga_jual_produk
             $table->renameColumn('harga_jual', 'harga_jual_produk');
         });
     }
@@ -30,11 +28,9 @@ class MengubahPenjualanDetailTabel extends Migration
     public function down()
     {
         Schema::table('penjualan_detail', function (Blueprint $table) {
-            // Menambahkan kembali kolom yang dihapus
             $table->tinyInteger('diskon')->default(0);
             $table->integer('subtotal');
 
-            // Mengubah kembali nama kolom harga_jual_produk ke harga_jual
             $table->renameColumn('harga_jual_produk', 'harga_jual');
         });
     }

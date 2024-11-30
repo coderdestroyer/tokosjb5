@@ -32,7 +32,6 @@ class MengubahPenjualanTabel extends Migration
     public function down()
     {
         Schema::table('penjualan', function (Blueprint $table) {
-            // Mengembalikan kolom yang dihapus
             $table->integer('id_member');
             $table->integer('total_item');
             $table->integer('total_harga');
@@ -40,7 +39,6 @@ class MengubahPenjualanTabel extends Migration
             $table->integer('bayar')->default(0);
             $table->integer('diterima')->default(0);
 
-            // Menghapus kolom baru
             $table->dropColumn(['nomor_invoice', 'id_kasir', 'tanggal_penjualan']);
         });
     }

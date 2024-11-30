@@ -9,7 +9,7 @@ class DetailProduk extends Model
 {
     use HasFactory;
 
-    protected $table = 'detail_produk';  // Pastikan ini sesuai dengan nama tabel
+    protected $table = 'detail_produk'; 
 
     protected $fillable = [
         'id_produk', 
@@ -17,6 +17,8 @@ class DetailProduk extends Model
         'merk', 
         'harga_beli_produk'
     ];
+
+    protected $primaryKey = 'id_detail_produk';
 
     public function produk()
     {

@@ -10,11 +10,16 @@ class Penjualan extends Model
     use HasFactory;
 
     protected $table = 'penjualan';
-    protected $primaryKey = 'id_penjualan';
+    protected $primaryKey = 'nomor_invoice';
     protected $guarded = [];
 
     public function user()
     {
         return $this->hasOne(User::class, 'id', 'id_user');
+    }
+
+    public function detailPenjualan()
+    {
+        return $this->hasMany(PenjualanDetail::class, 'nomor_invoice');
     }
 }

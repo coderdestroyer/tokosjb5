@@ -23,62 +23,95 @@ class LaporanController extends Controller
         return view('laporan.index', compact('tanggalAwal', 'tanggalAkhir'));
     }
 
-    public function getData($awal, $akhir)
+    public function getDataPembelian($awal, $akhir)
     {
         $no = 1;
-        $data = array();
-        $pendapatan = 0;
-        $total_pendapatan = 0;
-
-        while (strtotime($awal) <= strtotime($akhir)) {
-            $tanggal = $awal;
-            $awal = date('Y-m-d', strtotime("+1 day", strtotime($awal)));
-
-            $total_penjualan = Penjualan::where('created_at', 'LIKE', "%$tanggal%")->sum('bayar');
-            $total_pembelian = Pembelian::where('created_at', 'LIKE', "%$tanggal%")->sum('bayar');
-            $total_pengeluaran = Pengeluaran::where('created_at', 'LIKE', "%$tanggal%")->sum('nominal');
-
-            $pendapatan = $total_penjualan - $total_pembelian - $total_pengeluaran;
-            $total_pendapatan += $pendapatan;
-
-            $row = array();
-            $row['DT_RowIndex'] = $no++;
-            $row['tanggal'] = tanggal_indonesia($tanggal, false);
-            $row['penjualan'] = format_uang($total_penjualan);
-            $row['pembelian'] = format_uang($total_pembelian);
-            $row['pengeluaran'] = format_uang($total_pengeluaran);
-            $row['pendapatan'] = format_uang($pendapatan);
-
-            $data[] = $row;
+        $data = [];
+        $totalSeluruhnya = 0;
+        $pembelian = Pembelian::whereBetween('tanggal_pembelian', [$awal, $akhir])
+            ->withSum('detilPembelian', 'harga_beli_produk')
+            ->get();
+    
+        foreach ($pembelian as $item) {
+            if ($item->detil_pembelian_sum_harga_beli_produk > 0) {
+                $row = [];
+                $row['DT_RowIndex'] = $no++;
+                $row['tanggal'] = tanggal_indonesia($item->created_at->format('Y-m-d'), false);
+                $row['pembelian'] = 'Rp ' . format_uang($item->detil_pembelian_sum_harga_beli_produk);
+                $data[] = $row;
+                $totalSeluruhnya += $item->detil_pembelian_sum_harga_beli_produk;
+            }
         }
-
         $data[] = [
-            'DT_RowIndex' => '',
-            'tanggal' => '',
-            'penjualan' => '',
-            'pembelian' => '',
-            'pengeluaran' => 'Total Pendapatan',
-            'pendapatan' => format_uang($total_pendapatan),
+            'DT_RowIndex' => '-',
+            'tanggal' => 'Total',
+            'pembelian' => 'Rp ' . format_uang($totalSeluruhnya),
         ];
 
+    
         return $data;
     }
-
-    public function data($awal, $akhir)
+        
+    public function getDataPenjualan($awal, $akhir)
     {
-        $data = $this->getData($awal, $akhir);
+        $no = 1;
+        $data = [];
+        $totalSeluruhnya = 0;
 
+        $pembelian = Penjualan::whereBetween('tanggal_penjualan', [$awal, $akhir])
+            ->withSum('detailPenjualan', 'harga_jual_produk')
+            ->get();
+    
+        foreach ($pembelian as $item) {
+            if ($item->detail_penjualan_sum_harga_jual_produk > 0) {
+            $row = [];
+            $row['DT_RowIndex'] = 'INV-0' . $item->nomor_invoice;
+            $row['tanggal'] = tanggal_indonesia($item->created_at->format('Y-m-d'), false);
+            $row['penjualan'] = 'Rp ' . format_uang($item->detail_penjualan_sum_harga_jual_produk);
+            $totalSeluruhnya += $item->detail_penjualan_sum_harga_jual_produk;
+
+            $data[] = $row;
+            }
+        }
+        $data[] = [
+            'DT_RowIndex' => '-',
+            'tanggal' => 'Total',
+            'penjualan' => 'Rp ' . format_uang($totalSeluruhnya),
+        ];
+
+    
+        return $data;
+    }
+    
+    public function dataPembelian($awal, $akhir)
+    {
+        $data = $this->getDataPembelian($awal, $akhir);
+    
         return datatables()
             ->of($data)
             ->make(true);
     }
-
+    
+    public function dataPenjualan($awal, $akhir)
+    {
+        $data = $this->getDataPenjualan($awal, $akhir);
+    
+        return datatables()
+            ->of($data)
+            ->make(true);
+    }
+    
     public function exportPDF($awal, $akhir)
     {
-        $data = $this->getData($awal, $akhir);
-        $pdf  = PDF::loadView('laporan.pdf', compact('awal', 'akhir', 'data'));
-        $pdf->setPaper('a4', 'potrait');
-        
-        return $pdf->stream('Laporan-pendapatan-'. date('Y-m-d-his') .'.pdf');
+        // Ambil data pembelian dan penjualan
+        $dataPembelian = $this->getDataPembelian($awal, $akhir);
+        $dataPenjualan = $this->getDataPenjualan($awal, $akhir);
+    
+        // Kirim kedua data ke view
+        $pdf = PDF::loadView('laporan.pdf', compact('awal', 'akhir', 'dataPembelian', 'dataPenjualan'));
+        $pdf->setPaper('a4', 'portrait');
+    
+        return $pdf->stream('Laporan-Pendapatan-' . date('Y-m-d-His') . '.pdf');
     }
+    
 }

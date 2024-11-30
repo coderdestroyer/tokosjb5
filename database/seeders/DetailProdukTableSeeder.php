@@ -14,14 +14,15 @@ class DetailProdukTableSeeder extends Seeder
      */
     public function run()
     {
+
         // Mengambil id_produk berdasarkan kode_produk atau nama_produk
-        $produkA = DB::table('produk')->where('kode_produk', 'P000001')->first();
-        $produkB = DB::table('produk')->where('kode_produk', 'P000002')->first();
+        $produkA = DB::table('produk')->where('kode_produk', '1')->first();
+        $produkB = DB::table('produk')->where('kode_produk', '2')->first();
 
         // Memasukkan data ke dalam tabel detail_produk dengan mengambil id_produk dari produk
         DB::table('detail_produk')->insert([
             [
-                'id_produk' => $produkA->id_produk, // ID produk A
+                'kode_produk' => $produkA->kode_produk, // ID produk A
                 'stok_produk' => 100,
                 'merk' => 'Merk A',
                 'harga_beli_produk' => 40000,
@@ -29,7 +30,7 @@ class DetailProdukTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'id_produk' => $produkB->id_produk, // ID produk B
+                'kode_produk' => $produkB->kode_produk, // ID produk B
                 'stok_produk' => 50,
                 'merk' => 'Merk B',
                 'harga_beli_produk' => 60000,

@@ -23,7 +23,6 @@ class SettingController extends Controller
         $setting->nama_perusahaan = $request->nama_perusahaan;
         $setting->telepon = $request->telepon;
         $setting->alamat = $request->alamat;
-        $setting->diskon = $request->diskon;
         $setting->tipe_nota = $request->tipe_nota;
 
         if ($request->hasFile('path_logo')) {
@@ -32,14 +31,6 @@ class SettingController extends Controller
             $file->move(public_path('/img'), $nama);
 
             $setting->path_logo = "/img/$nama";
-        }
-
-        if ($request->hasFile('path_kartu_member')) {
-            $file = $request->file('path_kartu_member');
-            $nama = 'logo-' . date('Y-m-dHis') . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('/img'), $nama);
-
-            $setting->path_kartu_member = "/img/$nama";
         }
 
         $setting->update();

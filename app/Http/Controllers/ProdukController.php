@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Produk;
 use Illuminate\Contracts\Support\ValidatedData;
 use PDF;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class ProdukController extends Controller
 {
@@ -24,10 +25,9 @@ class ProdukController extends Controller
 
     public function data()
     {
-        $produk = Produk::join('detail_produk', 'produk.id_produk', '=', 'detail_produk.id_produk')
+        $produk = Produk::join('detail_produk', 'produk.kode_produk', '=', 'detail_produk.kode_produk')
         ->leftJoin('kategori', 'kategori.id_kategori', '=', 'produk.id_kategori')
         ->select(
-            'produk.id_produk',
             'produk.kode_produk',
             'produk.nama_produk',
             'produk.harga_jual',
@@ -42,11 +42,11 @@ class ProdukController extends Controller
         ->addIndexColumn()
         ->addColumn('select_all', function ($produk) {
             return '
-                <input type="checkbox" name="id_produk[]" value="'. $produk->id_produk .'">
+                <input type="checkbox" name="kode_produk[]" value="'. $produk->kode_produk .'">
             ';
         })
         ->addColumn('kode_produk', function ($produk) {
-            return '<span class="label label-success">'. $produk->kode_produk .'</span>';
+            return '<span class="label label-success">PRD00'. $produk->kode_produk .'</span>';
         })
         ->addColumn('harga_beli', function ($produk) {
             return format_uang($produk->harga_beli_produk);
@@ -60,8 +60,8 @@ class ProdukController extends Controller
         ->addColumn('aksi', function ($produk) {
             return '
             <div class="btn-group">
-                <button type="button" onclick="editForm(`'. route('produk.update', $produk->id_produk) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
-                <button type="button" onclick="deleteData(`'. route('produk.destroy', $produk->id_produk) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                <button type="button" onclick="editForm(`'. route('produk.update', $produk->kode_produk) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
+                <button type="button" onclick="deleteData(`'. route('produk.destroy', $produk->kode_produk) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
             </div>
             ';
         })
@@ -87,7 +87,7 @@ class ProdukController extends Controller
      */
     public function store(Request $request)
     {
-        @dd($request->all());
+        // @dd($request->all());
         $validatedData = $request->validate([
             'nama_produk' => 'required',
             'harga_jual' => 'required|numeric',
@@ -97,8 +97,6 @@ class ProdukController extends Controller
             'harga_beli_produk' => 'required|numeric',
         ]);
     
-        // Memanggil stored procedure 'store_produk' menggunakan DB::select
-        @dd($validatedData);
         DB::statement('CALL store_produk(?, ?, ?, ?, ?, ?)', [
             $validatedData['nama_produk'],
             $validatedData['harga_jual'],
@@ -109,12 +107,6 @@ class ProdukController extends Controller
         ]);
     
         return response()->json('Data berhasil disimpan', 200);
-        // $produk = Produk::latest()->first() ?? new Produk();
-        // $request['kode_produk'] = 'P'. tambah_nol_didepan((int)$produk->id_produk +1, 6);
-
-        // $produk = Produk::create($request->all());
-
-        // return response()->json('Data berhasil disimpan', 200);
     }
 
     /**
@@ -125,8 +117,13 @@ class ProdukController extends Controller
      */
     public function show($id)
     {
-        $produk = Produk::find($id);
-
+        $produk = Produk::where('kode_produk', $id)->first();
+        $detailproduk = DetailProduk::where('kode_produk', $id)->first();
+    
+        foreach ($detailproduk->getAttributes() as $key => $value) {
+            $produk->setAttribute($key, $value);
+        }
+    
         return response()->json($produk);
     }
 
@@ -136,9 +133,23 @@ class ProdukController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function update(Request $request, $id)
     {
-        //
+        $produk = Produk::where('kode_produk', $id)->first();
+        if (!$produk) {
+            return response()->json(['message' => 'Produk not found'], 404);
+        }
+
+        $detailProduk = DetailProduk::where('kode_produk', $id)->first();
+        if (!$detailProduk) {
+            return response()->json(['message' => 'Detail Produk not found'], 404);
+        }
+
+        $produk->update($request->only(['nama_produk', 'harga_jual', 'id_kategori']));
+
+        $detailProduk->update($request->only(['stok_produk', 'merk', 'harga_beli_produk']));
+
+        return response()->json('Data berhasil disimpan', 200);
     }
 
     /**
@@ -148,13 +159,6 @@ class ProdukController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        $produk = Produk::find($id);
-        $produk->update($request->all());
-
-        return response()->json('Data berhasil disimpan', 200);
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -164,7 +168,7 @@ class ProdukController extends Controller
      */
     public function destroy($id)
     {
-        $produk = Produk::find($id);
+        $produk = Produk::where('kode_produk', $id)->first();
         $produk->delete();
 
         return response(null, 204);
@@ -173,7 +177,7 @@ class ProdukController extends Controller
     public function deleteSelected(Request $request)
     {
         foreach ($request->id_produk as $id) {
-            $produk = Produk::find($id);
+            $produk = Produk::where('kode_produk', $id)->first();
             $produk->delete();
         }
 
@@ -183,8 +187,8 @@ class ProdukController extends Controller
     public function cetakBarcode(Request $request)
     {
         $dataproduk = array();
-        foreach ($request->id_produk as $id) {
-            $produk = Produk::find($id);
+        foreach ($request->kode_produk as $id) {
+            $produk = Produk::where('kode_produk', $id)->first();
             $dataproduk[] = $produk;
         }
 

@@ -28,7 +28,6 @@
                             <th width="5%">
                                 <input type="checkbox" name="select_all" id="select_all">
                             </th>
-                            <th width="5%">No</th>
                             <th>Kode</th>
                             <th>Nama</th>
                             <th>Kategori</th>
@@ -63,7 +62,6 @@
             },
             columns: [
                 {data: 'select_all', searchable: false, sortable: false},
-                {data: 'DT_RowIndex', searchable: false, sortable: false},
                 {data: 'kode_produk'},
                 {data: 'nama_produk'},
                 {data: 'nama_kategori'},
@@ -83,9 +81,12 @@
                             table.ajax.reload();
                         })
                         .fail((errors) => {
-                            alert('Tidak dapat menyimpan data');
-                            return;
-                        });
+                        if (errors.responseJSON && errors.responseJSON.message) {
+                            alert(errors.responseJSON.message);
+                        } else {
+                            alert('An error occurred. Please try again.');
+                        }
+                    });
                 }
             });
 
@@ -111,20 +112,21 @@
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
         $('#modal-form [name=_method]').val('put');
-        $('#modal-form [name=nama_produk]').focus();
 
         $.get(url)
             .done((response) => {
+                console.log(response);  
+
                 $('#modal-form [name=nama_produk]').val(response.nama_produk);
                 $('#modal-form [name=id_kategori]').val(response.id_kategori);
                 $('#modal-form [name=merk]').val(response.merk);
-                $('#modal-form [name=harga_beli]').val(response.harga_beli);
+                $('#modal-form [name=harga_beli_produk]').val(response.harga_beli_produk);
                 $('#modal-form [name=harga_jual]').val(response.harga_jual);
-                $('#modal-form [name=diskon]').val(response.diskon);
-                $('#modal-form [name=stok]').val(response.stok);
+                $('#modal-form [name=stok_produk]').val(response.stok_produk);
             })
             .fail((errors) => {
                 alert('Tidak dapat menampilkan data');
+                console.error(errors);  
                 return;
             });
     }

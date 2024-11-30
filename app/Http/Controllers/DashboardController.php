@@ -29,19 +29,24 @@ class DashboardController extends Controller
         while (strtotime($tanggal_awal) <= strtotime($tanggal_akhir)) {
             $data_tanggal[] = (int) substr($tanggal_awal, 8, 2);
 
-            $total_penjualan = Penjualan::where('created_at', 'LIKE', "%$tanggal_awal%")
-            ->get()
-            ->sum(function($penjualan) {
-                return $penjualan->harga * $penjualan->jumlah; // Menghitung total berdasarkan harga dan jumlah
-            });
-            $total_pembelian = Pembelian::where('created_at', 'LIKE', "%$tanggal_awal%")
-            ->get()
-            ->sum(function($pembelian) {
-                return $pembelian->harga * $pembelian->jumlah;
-            });
-            $total_pengeluaran = Pengeluaran::where('created_at', 'LIKE', "%$tanggal_awal%")->sum('nominal');
+            $total_penjualan = 0;
+            $penjualans = Penjualan::with('detailPenjualan')->where('created_at', 'LIKE', "%$tanggal_awal%")->get();
+            foreach ($penjualans as $penjualan) {
+                foreach ($penjualan->detailPenjualan as $detail) {
+                    $total_penjualan += $detail->harga_jual_produk * $detail->jumlah;
+                }
+            }
 
-            $pendapatan = $total_penjualan - $total_pembelian - $total_pengeluaran;
+
+            $total_pembelian = 0;
+            $pembelians = Pembelian::with('detilPembelian')->where('created_at', 'LIKE', "%$tanggal_awal%")->get();
+            foreach ($pembelians as $pembelian) {
+                foreach ($pembelian->detilPembelian as $detail) {
+                    $total_pembelian += $detail->harga_beli_produk * $detail->jumlah;
+                }
+            }
+
+            $pendapatan = $total_penjualan - $total_pembelian;
             $data_pendapatan[] += $pendapatan;
 
             $tanggal_awal = date('Y-m-d', strtotime("+1 day", strtotime($tanggal_awal)));

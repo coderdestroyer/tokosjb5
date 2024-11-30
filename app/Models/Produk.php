@@ -17,8 +17,10 @@ class Produk extends Model
         'id_kategori'
     ];
 
+    protected $primaryKey = 'kode_produk';
+
     public function detailProduk()
     {
-        return $this->hasOne(DetailProduk::class, 'id_produk', 'id_produk');
+        return $this->hasOne(DetailProduk::class, 'kode_produk', 'kode_produk');
     }
 }

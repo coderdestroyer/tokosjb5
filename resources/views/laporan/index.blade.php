@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-    Laporan Pendapatan {{ tanggal_indonesia($tanggalAwal, false) }} s/d {{ tanggal_indonesia($tanggalAkhir, false) }}
+    Laporan {{ tanggal_indonesia($tanggalAwal, false) }} s/d {{ tanggal_indonesia($tanggalAkhir, false) }}
 @endsection
 
 @push('css')
@@ -22,14 +22,29 @@
                 <a href="{{ route('laporan.export_pdf', [$tanggalAwal, $tanggalAkhir]) }}" target="_blank" class="btn btn-success btn-xs btn-flat"><i class="fa fa-file-excel-o"></i> Export PDF</a>
             </div>
             <div class="box-body table-responsive">
-                <table class="table table-stiped table-bordered">
+                <!-- Tabel Laporan Pembelian -->
+                <h4>Laporan Pembelian</h4>
+                <table class="table table-stiped table-bordered table-pembelian">
                     <thead>
-                        <th width="5%">No</th>
-                        <th>Tanggal</th>
-                        <th>Penjualan</th>
-                        <th>Pembelian</th>
-                        <th>Pengeluaran</th>
-                        <th>Pendapatan</th>
+                        <tr>
+                            <th width="5%">No</th>
+                            <th>Tanggal</th>
+                            <th>Pembelian</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                    </tfoot>
+                </table>
+                
+                <!-- Tabel Laporan Penjualan -->
+                <h4>Laporan Penjualan</h4>
+                <table class="table table-stiped table-bordered table-penjualan">
+                    <thead>
+                        <tr>
+                            <th width="5%">No Invoice</th>
+                            <th>Tanggal</th>
+                            <th>Penjualan</th>
+                        </tr>
                     </thead>
                 </table>
             </div>
@@ -43,24 +58,39 @@
 @push('scripts')
 <script src="{{ asset('/AdminLTE-2/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}"></script>
 <script>
-    let table;
+    let tablePembelian, tablePenjualan;
 
     $(function () {
-        table = $('.table').DataTable({
+        tablePembelian = $('.table-pembelian').DataTable({
             responsive: true,
             processing: true,
             serverSide: true,
             autoWidth: false,
             ajax: {
-                url: '{{ route('laporan.data', [$tanggalAwal, $tanggalAkhir]) }}',
+            url: '{{ route('laporan.data_pembelian', [$tanggalAwal, $tanggalAkhir]) }}',
+        },
+        columns: [
+            {data: 'DT_RowIndex', searchable: false, sortable: false},
+            {data: 'tanggal'},
+            {data: 'pembelian'},
+        ],
+            dom: 'Brt',
+            bSort: false,
+            bPaginate: false,
+        });
+
+        tablePenjualan = $('.table-penjualan').DataTable({
+            responsive: true,
+            processing: true,
+            serverSide: true,
+            autoWidth: false,
+            ajax: {
+                url: '{{ route('laporan.data_penjualan', [$tanggalAwal, $tanggalAkhir]) }}',
             },
             columns: [
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
                 {data: 'tanggal'},
                 {data: 'penjualan'},
-                {data: 'pembelian'},
-                {data: 'pengeluaran'},
-                {data: 'pendapatan'}
             ],
             dom: 'Brt',
             bSort: false,

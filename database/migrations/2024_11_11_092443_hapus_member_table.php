@@ -13,7 +13,6 @@ class HapusMemberTable extends Migration
      */
     public function up()
     {
-        // Menghapus tabel member jika ada
         Schema::dropIfExists('member');
     }
 
@@ -24,7 +23,6 @@ class HapusMemberTable extends Migration
      */
     public function down()
     {
-        // Membuat ulang tabel member jika migration di-rollback
         Schema::create('member', function (Blueprint $table) {
             $table->increments('id_member');
             $table->string('kode_member')->unique();

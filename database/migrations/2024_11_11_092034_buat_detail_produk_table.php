@@ -21,7 +21,6 @@ class BuatDetailProdukTable extends Migration
             $table->integer('harga_beli_produk');
             $table->timestamps();
 
-            // Tambahkan foreign key jika diperlukan
             $table->foreign('id_produk')->references('id_produk')->on('produk')->onDelete('cascade');
         });
     }
@@ -32,6 +31,6 @@ class BuatDetailProdukTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('detail_produk');
     }
 }

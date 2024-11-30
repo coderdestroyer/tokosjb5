@@ -14,7 +14,7 @@ class HapusFkIdKategoriProdukTable extends Migration
     public function up()
     {
         Schema::table('produk', function (Blueprint $table) {
-            $table->dropForeign(['id_kategori']);  // Menghapus foreign key constraint
+            $table->dropForeign(['id_kategori']);
         });
     }
 
