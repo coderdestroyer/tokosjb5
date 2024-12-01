@@ -24,17 +24,18 @@ class CreateFunctionProdukTerlaris extends Migration
                 SELECT p.nama_produk
                 INTO nama_produk_terlaris
                 FROM produk p
-                JOIN pembelian_detail pd ON pd.id_produk = p.id_produk
+                JOIN pembelian_detail pd ON pd.kode_produk = p.kode_produk
                 JOIN pembelian b ON b.id_pembelian = pd.id_pembelian
                 WHERE MONTH(b.tanggal_pembelian) = p_bulan 
                   AND YEAR(b.tanggal_pembelian) = p_tahun
-                GROUP BY p.id_produk
+                GROUP BY p.kode_produk
                 ORDER BY SUM(pd.jumlah) DESC
                 LIMIT 1;
 
                 RETURN IFNULL(nama_produk_terlaris, "Tidak ada data");
             END
         ');
+
     }
 
     /**
@@ -45,5 +46,6 @@ class CreateFunctionProdukTerlaris extends Migration
     public function down()
     {
         DB::unprepared('DROP FUNCTION IF EXISTS produk_terlaris');
+
     }
 }
