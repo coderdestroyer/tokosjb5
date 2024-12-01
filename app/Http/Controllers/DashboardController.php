@@ -9,6 +9,7 @@ use App\Models\Pengeluaran;
 use App\Models\Penjualan;
 use App\Models\Produk;
 use App\Models\Supplier;
+use App\Models\StokLow; // Import model StokLow
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -20,6 +21,9 @@ class DashboardController extends Controller
         $supplier = Supplier::count();
         $member = Kasir::count();
 
+        // Ambil data produk dengan stok rendah dari view stok_low
+        $produkLowStok = StokLow::all();
+        
         $tanggal_awal = date('Y-m-01');
         $tanggal_akhir = date('Y-m-d');
 
@@ -55,7 +59,7 @@ class DashboardController extends Controller
         $tanggal_awal = date('Y-m-01');
 
         if (auth()->user()->level == 1) {
-            return view('admin.dashboard', compact('kategori', 'produk', 'supplier', 'tanggal_awal', 'tanggal_akhir', 'data_tanggal', 'data_pendapatan'));
+            return view('admin.dashboard', compact('kategori', 'produk', 'supplier', 'tanggal_awal', 'tanggal_akhir', 'data_tanggal', 'data_pendapatan', 'produkLowStok'));
         } else {
             return view('kasir.dashboard');
         }
