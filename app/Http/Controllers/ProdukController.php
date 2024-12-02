@@ -35,7 +35,7 @@ class ProdukController extends Controller
             'detail_produk.merk',
             'detail_produk.harga_beli_produk',
             'kategori.nama_kategori'
-        );
+        )->get();
 
         return datatables()
         ->of($produk)

@@ -67,25 +67,77 @@
             <div class="box-header with-border">
                 <h3 class="box-title">Grafik Pendapatan {{ tanggal_indonesia($tanggal_awal, false) }} s/d {{ tanggal_indonesia($tanggal_akhir, false) }}</h3>
             </div>
-            <!-- /.box-header -->
             <div class="box-body">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="chart">
-                            <!-- Sales Chart Canvas -->
                             <canvas id="salesChart" style="height: 180px;"></canvas>
                         </div>
-                        <!-- /.chart-responsive -->
                     </div>
                 </div>
-                <!-- /.row -->
             </div>
         </div>
-        <!-- /.box -->
     </div>
-    <!-- /.col -->
 </div>
-<!-- /.row (main row) -->
+
+<!-- Card for Low Stock Products -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="box box-danger">
+            <div class="box-header with-border">
+                <h3 class="box-title">Produk dengan Stok Paling Sedikit</h3>
+            </div>
+            <div class="box-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nama Produk</th>
+                            <th>Stok</th>
+                            <th>Harga</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr>
+                                <td>nama</td>
+                                <td>stock</td>
+                                <td>fornat</td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Card for Low Stock Products -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="box box-danger">
+            <div class="box-header with-border">
+                <h3 class="box-title">Produk Terlaris</h3>
+            </div>
+            <div class="box-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nama Produk</th>
+                            <th>Stok</th>
+                            <th>Harga</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr>
+                                <td>nama</td>
+                                <td>stock</td>
+                                <td>fornat</td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
