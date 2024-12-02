@@ -22,6 +22,8 @@
                         <th width="5%">No</th>
                         <th>Nama</th>
                         <th>Email</th>
+                        <th>Alamat</th>
+                        <th>Nomor Handphone</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
                     </thead>
                 </table>
@@ -50,6 +52,8 @@
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
                 {data: 'name'},
                 {data: 'email'},
+                {data: 'alamat'},  // Kolom Alamat
+                {data: 'nomor_hp'}, // Kolom Nomor Handphone
                 {data: 'aksi', searchable: false, sortable: false},
             ]
         });
@@ -96,6 +100,8 @@
             .done((response) => {
                 $('#modal-form [name=name]').val(response.name);
                 $('#modal-form [name=email]').val(response.email);
+                $('#modal-form [name=alamat]').val(response.kasir.alamat); 
+                $('#modal-form [name=nomor_hp]').val(response.kasir.nomor_hp);
             })
             .fail((errors) => {
                 alert('Tidak dapat menampilkan data');
