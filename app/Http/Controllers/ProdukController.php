@@ -85,29 +85,57 @@ class ProdukController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        // @dd($request->all());
-        $validatedData = $request->validate([
-            'nama_produk' => 'required',
-            'harga_jual' => 'required|numeric',
-            'id_kategori' => 'required|exists:kategori,id_kategori',
-            'stok_produk' => 'required|numeric',
-            'merk' => 'nullable|string',
-            'harga_beli_produk' => 'required|numeric',
-        ]);
-    
-        DB::statement('CALL store_produk(?, ?, ?, ?, ?, ?)', [
+
+     public function store(Request $request)
+{
+    // Validasi input dari pengguna
+    $validatedData = $request->validate([
+        'nama_produk' => 'required|string|max:255',
+        'harga_jual' => 'required|numeric|min:0',
+        'id_kategori' => 'required|exists:kategori,id_kategori',
+        'stok_produk' => 'required|integer|min:0',
+        'merk' => 'nullable|string|max:255',
+        'harga_beli_produk' => 'required|numeric|min:0',
+    ]);
+
+    try {
+        // Panggil prosedur `store_produk2`
+        DB::statement('CALL store_produk2(?, ?, ?, ?, ?, ?)', [
             $validatedData['nama_produk'],
             $validatedData['harga_jual'],
             $validatedData['id_kategori'],
             $validatedData['stok_produk'],
             $validatedData['merk'] ?? null,
-            $validatedData['harga_beli_produk']
+            $validatedData['harga_beli_produk'],
         ]);
+
+        // Kembalikan respons berhasil
+        return response()->json(['message' => 'Data berhasil disimpan'], 200);
+    }  
+}
+    // public function store(Request $request)
+    // {
+    //     // @dd($request->all());
+    //     $validatedData = $request->validate([
+    //         'nama_produk' => 'required',
+    //         'harga_jual' => 'required|numeric',
+    //         'id_kategori' => 'required|exists:kategori,id_kategori',
+    //         'stok_produk' => 'required|numeric',
+    //         'merk' => 'nullable|string',
+    //         'harga_beli_produk' => 'required|numeric',
+    //     ]);
     
-        return response()->json('Data berhasil disimpan', 200);
-    }
+    //     DB::statement('CALL store_produk(?, ?, ?, ?, ?, ?)', [
+    //         $validatedData['nama_produk'],
+    //         $validatedData['harga_jual'],
+    //         $validatedData['id_kategori'],
+    //         $validatedData['stok_produk'],
+    //         $validatedData['merk'] ?? null,
+    //         $validatedData['harga_beli_produk']
+    //     ]);
+    
+    //     return response()->json('Data berhasil disimpan', 200);
+    // }
 
     /**
      * Display the specified resource.
@@ -134,8 +162,8 @@ class ProdukController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        // Validasi input data
+{
+    // Validasi input data
     $request->validate([
         'nama_produk' => 'required|string|max:255',
         'id_kategori' => 'required|integer',
@@ -153,8 +181,9 @@ class ProdukController extends Controller
 
     // Panggil prosedur tersimpan
     try {
-        DB::statement('CALL update_produk(?, ?, ?, ?, ?, ?, ?)', [
-            $produk->kode_produk, // Ambil id_produk dari produk
+        // Eksekusi prosedur update_produk dengan parameter yang sudah disiapkan
+        DB::statement('CALL update_produk2(?, ?, ?, ?, ?, ?, ?)', [
+            $produk->kode_produk, // Ambil kode_produk dari produk yang ditemukan
             $request->input('nama_produk'),
             $request->input('id_kategori'),
             $request->input('harga_beli_produk'),
@@ -167,7 +196,43 @@ class ProdukController extends Controller
     } catch (\Exception $e) {
         return response()->json(['message' => 'Error updating data', 'error' => $e->getMessage()], 500);
     }      
-    }
+}
+
+    // public function update(Request $request, $id)
+    // {
+    //     // Validasi input data
+    // $request->validate([
+    //     'nama_produk' => 'required|string|max:255',
+    //     'id_kategori' => 'required|integer',
+    //     'harga_jual' => 'required|numeric',
+    //     'stok_produk' => 'required|integer',
+    //     'merk' => 'required|string|max:100',
+    //     'harga_beli_produk' => 'required|numeric',
+    // ]);
+
+    // // Cari produk berdasarkan kode_produk
+    // $produk = Produk::where('kode_produk', $id)->first();
+    // if (!$produk) {
+    //     return response()->json(['message' => 'Produk not found'], 404);
+    // }
+
+    // // Panggil prosedur tersimpan
+    // try {
+    //     DB::statement('CALL update_produk(?, ?, ?, ?, ?, ?, ?)', [
+    //         $produk->kode_produk, // Ambil id_produk dari produk
+    //         $request->input('nama_produk'),
+    //         $request->input('id_kategori'),
+    //         $request->input('harga_beli_produk'),
+    //         $request->input('harga_jual'),
+    //         $request->input('merk'),
+    //         $request->input('stok_produk'),
+    //     ]);
+
+    //     return response()->json(['message' => 'Data berhasil diperbarui'], 200);
+    // } catch (\Exception $e) {
+    //     return response()->json(['message' => 'Error updating data', 'error' => $e->getMessage()], 500);
+    // }      
+    // }
 
     /**
      * Update the specified resource in storage.

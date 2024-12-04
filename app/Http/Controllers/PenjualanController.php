@@ -8,6 +8,7 @@ use App\Models\Produk;
 use App\Models\DetailProduk;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use PDF;
 
 class PenjualanController extends Controller
@@ -73,24 +74,104 @@ class PenjualanController extends Controller
         session(['nomor_invoice' => $penjualan->nomor_invoice]);
         return redirect()->route('transaksi.index');
     }
-
+    
     public function store(Request $request)
     {
-        $penjualan = Penjualan::findOrFail($request->id_penjualan);
-        $penjualan->created_at = now();
-        $penjualan->updated_at = now();
-        $penjualan->update();
 
-        $detail = PenjualanDetail::where('nomor_invoice', $penjualan->id_penjualan)->get();
-        foreach ($detail as $item) {
-            $item->update();
-            $detailProduk = DetailProduk::where('id_produk', $item->id_produk)->first();
-            $detailProduk->stok_produk -= $item->jumlah;
-            $detailProduk->update();
-        }
+        dd($request->all());
 
-        return redirect()->route('transaksi.selesai');
+    $nomorInvoice = $request->input('nomor_invoice');
+    $uangDibayarkan = $request->input('uang_dibayarkan');
+    $kembalian = 0;
+
+    try {
+
+        // Jalankan prosedur proses_penjualan
+        DB::statement('CALL proses_penjualan(?, ?, @kembalian)', [
+            $nomorInvoice,
+            $uangDibayarkan
+        ]);
+
+        // Ambil hasil kembalian dari prosedur
+        $result = DB::select('SELECT @kembalian AS kembalian');
+        $kembalian = $result[0]->kembalian ?? 0; // Default kembalian jika null
+
+        // Commit transaksi jika tidak ada error
+        DB::commit();
+
+        // Kembalikan respons JSON sukses
+        return response()->json([
+            'success' => true,
+            'message' => 'Transaksi berhasil diproses.',
+            'kembalian' => $kembalian
+        ]);
+    } catch (\Exception $e) {
+        // Rollback transaksi jika terjadi error
+        DB::rollBack();
+
+        // Kembalikan respons JSON gagal dengan pesan error
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan saat memproses transaksi.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
+    // public function store(Request $request)
+    // {
+    //     $nomorInvoice = $request->input('nomor_invoice');
+    //     $uangDibayarkan = $request->input('uang_dibayarkan');
+    //     $kembalian = 0;
+
+    //     try {
+    //         // Jalankan prosedur proses_penjualan
+    //         DB::beginTransaction();
+
+    //         DB::statement('CALL proses_penjualan(?, ?, @kembalian)', [
+    //             $nomorInvoice,
+    //             $uangDibayarkan
+    //         ]);
+
+    //         // Ambil hasil kembalian dari prosedur
+    //         $result = DB::select('SELECT @kembalian AS kembalian');
+    //         $kembalian = $result[0]->kembalian ?? 0; // Pastikan kembalian tersedia
+
+    //         DB::commit();
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Transaksi berhasil diproses.',
+    //             'kembalian' => $kembalian
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Terjadi kesalahan saat memproses transaksi.',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+    // public function store(Request $request)
+    // {
+    //     $penjualan = Penjualan::findOrFail($request->id_penjualan);
+    //     $penjualan->created_at = now();
+    //     $penjualan->updated_at = now();
+    //     $penjualan->update();
+
+    //     $detail = PenjualanDetail::where('nomor_invoice', $penjualan->id_penjualan)->get();
+    //     foreach ($detail as $item) {
+    //         $item->update();
+    //         $detailProduk = DetailProduk::where('id_produk', $item->id_produk)->first();
+    //         $detailProduk->stok_produk -= $item->jumlah;
+    //         $detailProduk->update();
+    //     }
+
+    //     return redirect()->route('transaksi.selesai');
+    // }
 
     public function show($id)
     {   
