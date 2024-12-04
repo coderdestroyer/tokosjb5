@@ -61,4 +61,9 @@ class User extends Authenticatable
     {
         return $query->where('level', '!=', 1);
     }
+
+    public function kasir()
+    {
+        return $this->hasOne(Kasir::class, 'id_user', 'id');
+    }
 }

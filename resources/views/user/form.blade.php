@@ -25,6 +25,22 @@
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
+                    <!-- Alamat -->
+                    <div class="form-group row">
+                        <label for="alamat" class="col-lg-3 col-lg-offset-1 control-label">Alamat</label>
+                        <div class="col-lg-6">
+                            <input type="text" name="alamat" id="alamat" class="form-control" required>
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
+                    <!-- Nomor Handphone -->
+                    <div class="form-group row">
+                        <label for="nomor_hp" class="col-lg-3 col-lg-offset-1 control-label">Nomor Handphone</label>
+                        <div class="col-lg-6">
+                            <input type="text" name="nomor_hp" id="nomor_hp" class="form-control" required>
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
                     <div class="form-group row">
                         <label for="password" class="col-lg-3 col-lg-offset-1 control-label">Password</label>
                         <div class="col-lg-6">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Kasir;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -15,11 +16,20 @@ class UserController extends Controller
 
     public function data()
     {
-        $user = User::isNotAdmin()->orderBy('id', 'desc')->get();
+        $user = User::isNotAdmin()
+        ->with('kasir') 
+        ->select('id', 'name', 'email')
+        ->orderBy('id', 'desc')->get();
 
         return datatables()
             ->of($user)
             ->addIndexColumn()
+            ->addColumn('alamat', function ($user) {
+                return $user->kasir->alamat ?? '-'; 
+            })
+            ->addColumn('nomor_hp', function ($user) {
+                return $user->kasir->nomor_hp ?? '-'; 
+            })
             ->addColumn('aksi', function ($user) {
                 return '
                 <div class="btn-group">
@@ -50,6 +60,14 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|string|min:6|confirmed',
+        'alamat' => 'required|string|max:255',
+        'nomor_hp' => 'required|string|max:15',
+    ]);
+
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
@@ -57,6 +75,12 @@ class UserController extends Controller
         $user->level = 2;
         $user->foto = '/img/user.jpg';
         $user->save();
+
+        $kasir = new Kasir(); 
+        $kasir->id_user = $user->id;
+        $kasir->nomor_hp = $request->nomor_hp;
+        $kasir->alamat = $request->alamat;
+        $kasir->save();
 
         return response()->json('Data berhasil disimpan', 200);
     }
@@ -69,8 +93,8 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::find($id);
-
+        $user = User::with('kasir')->find($id);
+        
         return response()->json($user);
     }
 
@@ -98,7 +122,7 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         if ($request->has('password') && $request->password != "") 
-            $user->password = bcrypt($request->password);
+        $user->password = bcrypt($request->password);
         $user->update();
 
         return response()->json('Data berhasil disimpan', 200);

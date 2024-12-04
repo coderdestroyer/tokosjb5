@@ -79,6 +79,12 @@
                     <i class="fa fa-cogs"></i> <span>Pengaturan</span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('logs.index') }}">
+                <i class="fa fa-cog"></i> <span>Logs</span>
+                </a>
+            </li>
+            
             @else
             <li>
                 <a href="{{ route('transaksi.index') }}">
